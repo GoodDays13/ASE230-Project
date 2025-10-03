@@ -1,20 +1,11 @@
 <?php
+include 'database.php';
+
 $minContentLength = 50;
 $maxContentLength = 1000;
 $invalidPost = false;
 
-$posts = [
-  [
-    'title' => 'Welcome to the Public Square',
-    'content' => 'This is the first post in the public square. Feel free to share your thoughts!',
-    'created_at' => date('Y-m-d H:i:s')
-  ],
-  [
-    'title' => 'Community Guidelines',
-    'content' => 'Please be respectful and considerate when posting in the public square.',
-    'created_at' => '2024-10-02 12:30:00'
-  ]
-];
+$posts = listPosts();
 
 function renderPost($post)
 {
@@ -47,7 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       'content' => $content,
       'created_at' => date('Y-m-d H:i:s')
     ];
-    array_unshift($posts, $newPost); // Add new post to the beginning
+    if (createPost($newPost) !== false) {
+      header("Location: " . $_SERVER['PHP_SELF']);
+      exit();
+    }
   } else {
     $invalidPost = true;
   }
