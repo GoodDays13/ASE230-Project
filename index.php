@@ -48,6 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $posts = readAll('post');
+
+session_start();
 ?>
 
 <!DOCTYPE html>
@@ -65,24 +67,26 @@ $posts = readAll('post');
     <h1>Public Square</h1>
   </div>
   <div class="container mt-5">
-    <div class="card mb-3">
-      <div class="card-body">
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-          <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" id="title" name="title" value="<?php if ($invalidPost) echo trim($_POST["title"]); ?>" required>
-          </div>
-          <div class="mb-3">
-            <label for="content" class="form-label">Content</label>
-            <textarea class="form-control" id="content" name="content" rows="3" minlength="<?= $minContentLength ?>" maxlength="<?= $maxContentLength ?>" required><?php if ($invalidPost) echo trim($_POST["content"]); ?></textarea>
-            <?php if ($invalidPost) { ?>
-              <div class="form-text text-danger">Content was under <?= $minContentLength ?> characters after trimming.</div>
-            <?php } ?>
-          </div>
-          <button type="submit" class="btn btn-primary">Post</button>
+    <?php if (isset($_SESSION['user_id'])) { ?>
+      <div class="card mb-3">
+        <div class="card-body">
+          <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title" value="<?php if ($invalidPost) echo trim($_POST["title"]); ?>" required>
+            </div>
+            <div class="mb-3">
+              <label for="content" class="form-label">Content</label>
+              <textarea class="form-control" id="content" name="content" rows="3" minlength="<?= $minContentLength ?>" maxlength="<?= $maxContentLength ?>" required><?php if ($invalidPost) echo trim($_POST["content"]); ?></textarea>
+              <?php if ($invalidPost) { ?>
+                <div class="form-text text-danger">Content was under <?= $minContentLength ?> characters after trimming.</div>
+              <?php } ?>
+            </div>
+            <button type="submit" class="btn btn-primary">Post</button>
+        </div>
       </div>
-    </div>
-    <?php foreach (array_reverse($posts) as $post) {
+    <?php }
+    foreach (array_reverse($posts) as $post) {
       renderPost($post);
     } ?>
   </div>

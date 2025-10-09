@@ -115,6 +115,21 @@ function readAll($type)
   return loadData($type);
 }
 
+// Find a post by a specific key/value pair. Returns the first match's ID or false if not found.
+function find($type, $key, $value)
+{
+  $database = loadData($type);
+  if ($database === false) {
+    return false;
+  }
+  foreach ($database as $id => $item) {
+    if (isset($item[$key]) && $item[$key] === $value) {
+      return $id;
+    }
+  }
+  return false;
+}
+
 function update($type, $id, $newData)
 {
   $database = loadData($type);
