@@ -63,8 +63,13 @@ session_start();
 </head>
 
 <body>
-  <div class="container mt-5">
+  <div class="container d-flex mt-5">
     <h1>Public Square</h1>
+    <a class="btn btn-outline-primary ms-auto mb-auto" href="<?php echo isset($_SESSION['user_id']) ? 'logout.php">Logout' : 'login.php">Login'; ?>
+    <?php if (false) { ?>">
+    <?php } // weird stuff to make the formatter happy
+    ?>
+    </a>
   </div>
   <div class="container mt-5">
     <?php if (isset($_SESSION['user_id'])) { ?>
