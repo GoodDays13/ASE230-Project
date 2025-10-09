@@ -5,8 +5,6 @@ $minContentLength = 50;
 $maxContentLength = 1000;
 $invalidPost = false;
 
-$posts = listPosts();
-
 function renderPost($post)
 {
 ?>
@@ -36,16 +34,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newPost = [
       'title' => $title,
       'content' => $content,
-      'created_at' => date('Y-m-d H:i:s')
     ];
-    if (createPost($newPost) !== false) {
+    if (create('post', $newPost) !== false) {
       header("Location: " . $_SERVER['PHP_SELF']);
       exit();
+    } else {
+      $invalidPost = true;
+      echo "Error: Could not save post.";
     }
   } else {
     $invalidPost = true;
   }
 }
+
+$posts = readAll('post');
 ?>
 
 <!DOCTYPE html>
@@ -80,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <button type="submit" class="btn btn-primary">Post</button>
       </div>
     </div>
-    <?php foreach ($posts as $post) {
+    <?php foreach (array_reverse($posts) as $post) {
       renderPost($post);
     } ?>
   </div>
