@@ -54,6 +54,32 @@ function renderDataWithEdit($type, $items)
     </div>
 <?php }
 }
+
+$type = $_GET['type'] ?? null;
+$query = $_GET['query'] ?? null;
+
+$users = readAll('user');
+$posts = readAll('post');
+
+if ($type === 'user' && $query) {
+  $users = array_filter($users, function ($user) use ($query) {
+    foreach ($user as $field) {
+      if (preg_match('/' . $query . '/i', $field)) {
+        return true;
+      }
+    }
+    return false;
+  });
+} elseif ($type === 'post' && $query) {
+  $posts = array_filter($posts, function ($post) use ($query) {
+    foreach ($post as $field) {
+      if (preg_match('/' . $query . '/i', $field)) {
+        return true;
+      }
+    }
+    return false;
+  });
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,14 +104,14 @@ function renderDataWithEdit($type, $items)
     <div class="accordion" id="entityAccordion">
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <button class="accordion-button <?= $type === 'user' ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
             Users
           </button>
         </h2>
-        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#entityAccordion">
+        <div id="collapseOne" class="accordion-collapse collapse <?= $type === 'user' ? 'show' : '' ?>" data-bs-parent="#entityAccordion">
           <div class="accordion-body">
+            <input type="text" class="form-control mb-3" placeholder="Search Users..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=user&query=' + this.value}" value="<?= $type === 'user' ? htmlspecialchars($query ?? '') : '' ?>">
             <?php
-            $users = readAll('user');
             renderDataWithEdit('user', $users);
             ?>
           </div>
@@ -93,14 +119,14 @@ function renderDataWithEdit($type, $items)
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <button class="accordion-button <?= $type === 'post' ? '' : 'collapsed' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
             Posts
           </button>
         </h2>
-        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#entityAccordion">
+        <div id="collapseTwo" class="accordion-collapse collapse <?= $type === 'post' ? 'show' : '' ?>" data-bs-parent="#entityAccordion">
           <div class="accordion-body">
+            <input type="text" class="form-control mb-3" placeholder="Search Posts..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=post&query=' + this.value}" value="<?= $type === 'post' ? htmlspecialchars($query ?? '') : '' ?>">
             <?php
-            $posts = readAll('post');
             renderDataWithEdit('post', $posts);
             ?>
           </div>
