@@ -47,7 +47,7 @@ function renderDataWithEdit($type, $items)
         <form method="post" action="edit.php?type=<?= $type ?>&id=<?= htmlspecialchars($id) ?>">
           <?php renderEditableData($user); ?>
           <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
-          <button type="button" class="btn btn-danger ms-2 mt-2" onclick="if(confirm('Are you sure you want to delete this <?= $type ?>?')) { window.location.href='delete_<?= $type ?>.php?id=<?= htmlspecialchars($id) ?>'; }">Delete</button>
+          <button type="button" class="btn btn-danger ms-2 mt-2" onclick="if(confirm('Are you sure you want to delete this <?= $type ?>?')) { window.location.href='delete.php?type=<?= $type ?>&id=<?= htmlspecialchars($id) ?>'; }">Delete</button>
           <button type="button" class="btn btn-secondary ms-2 mt-2" onclick="document.getElementById('<?= $type ?>-<?= $id ?>-edit').style.display='none'; document.getElementById('<?= $type ?>-<?= $id ?>-view').style.display='block';">Cancel</button>
         </form>
       </div>
