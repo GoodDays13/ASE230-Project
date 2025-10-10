@@ -1,11 +1,23 @@
 <?php
 require_once 'database.php';
 
+$roles = [
+  'user',
+  'admin',
+];
+
 session_start();
 
 function isLoggedIn()
 {
   return isset($_SESSION['user_id']);
+}
+
+function getLevelOfRole($role)
+{
+  global $roles;
+  $level = array_search($role, $roles);
+  return $level === false ? -1 : $level;
 }
 
 function validate($user)
@@ -23,6 +35,7 @@ function register($user)
   if (validate($user)) {
     // Hash the password before storing
     $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+    $user['role'] = 'user'; // Default role
     if (create('users', $user) !== false) {
       return true; // Registration successful
     } else {
@@ -41,6 +54,7 @@ function login($username, $password)
     if (password_verify($password, $storedUser['password'])) {
       $_SESSION['user_id'] = $userID;
       $_SESSION['username'] = $storedUser['username'];
+      $_SESSION['role'] = $storedUser['role'];
       return true;
     }
   }

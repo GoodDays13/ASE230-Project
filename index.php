@@ -13,7 +13,10 @@ function renderPost($post)
     <div class="card-body">
       <h5 class="card-title"><?= htmlspecialchars($post['title']) ?></h5>
       <p class="card-text"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
-      <p class="card-text"><small class="text-muted">Posted on <?= htmlspecialchars($post['created_at']) ?></small></p>
+      <p class="card-text"><small class="text-muted">
+          Posted on <?= htmlspecialchars($post['created_at']) ?>
+          by <?= htmlspecialchars(read('users', $post['user_id'])['username'] ?? 'null') ?>
+        </small></p>
     </div>
   </div>
 <?php }
@@ -35,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $newPost = [
       'title' => $title,
       'content' => $content,
+      'user_id' => $_SESSION['user_id'],
     ];
     if (create('post', $newPost) !== false) {
       header("Location: " . $_SERVER['PHP_SELF']);
@@ -64,10 +68,13 @@ $posts = readAll('post');
 <body>
   <div class="container d-flex mt-5">
     <h1>Public Square</h1>
-    <a class="btn btn-outline-primary ms-auto mb-auto" href="<?php echo isLoggedIn() ? 'logout.php">Logout' : 'login.php">Login'; ?>
-    <?php if (false) { ?>">
-    <?php } // weird stuff to make the formatter happy
-    ?>
+    <?php if (isLoggedIn()) { ?>
+      <span class="badge bg-primary ms-3 my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
+      <a class="btn btn-outline-primary ms-auto mb-auto" href="admin.php">Admin Panel</a>
+      <a class="btn btn-outline-primary ms-3 mb-auto" href="logout.php">Logout</a>
+    <?php } else { ?>
+      <a class="btn btn-outline-primary ms-auto mb-auto" href="login.php">Login</a>
+    <?php } ?>
     </a>
   </div>
   <div class="container mt-5">
