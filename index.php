@@ -1,5 +1,6 @@
 <?php
-include 'database.php';
+require_once 'authentication.php';
+require_once 'database.php';
 
 $minContentLength = 50;
 $maxContentLength = 1000;
@@ -48,8 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $posts = readAll('post');
-
-session_start();
 ?>
 
 <!DOCTYPE html>
@@ -65,7 +64,7 @@ session_start();
 <body>
   <div class="container d-flex mt-5">
     <h1>Public Square</h1>
-    <a class="btn btn-outline-primary ms-auto mb-auto" href="<?php echo isset($_SESSION['user_id']) ? 'logout.php">Logout' : 'login.php">Login'; ?>
+    <a class="btn btn-outline-primary ms-auto mb-auto" href="<?php echo isLoggedIn() ? 'logout.php">Logout' : 'login.php">Login'; ?>
     <?php if (false) { ?>">
     <?php } // weird stuff to make the formatter happy
     ?>

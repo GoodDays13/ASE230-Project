@@ -1,5 +1,5 @@
 <?php
-session_start();
-session_destroy();
+require_once 'authentication.php';
+logout();
 header('Location: index.php');
 exit;

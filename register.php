@@ -1,29 +1,13 @@
 <?php
 require_once __DIR__ . '/database.php';
 
-function validate($user)
-{
-  $user['username'] = trim($user['username'] ?? '');
-  $user['email'] = trim($user['email'] ?? '');
-  $user['password'] = $user['password'] ?? '';
-  return preg_match('/^[a-zA-Z0-9_]{3,}$/', $user['username']) // Alphanumeric + underscores, min 3 chars
-    && filter_var($user['email'], FILTER_VALIDATE_EMAIL) // Valid email format
-    && strlen($user['password']) >= 8; // Min 8 chars
-}
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $user = ['username' => $_POST['username'], 'email' => $_POST['email'], 'password' => $_POST['new-password']];
-  if (validate($user)) {
-    // Hash the password before storing
-    $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
-    if (create('users', $user) !== false) {
-      header("Location: login.php");
-      exit();
-    } else {
-      $error = "Error: Could not register user.";
-    }
-  } else {
-    $error = "Invalid input. Please check your details.";
+  $error = register($user);
+  if ($error === true) {
+    // Registration successful, redirect to login or another page
+    header("Location: login.php");
+    exit();
   }
 }
 ?>

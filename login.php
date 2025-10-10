@@ -1,25 +1,21 @@
 <?php
-require_once __DIR__ . '/database.php';
+require_once 'authentication.php';
 
-session_start();
-if (isset($_SESSION['user_id'])) {
+if (isLoggedIn()) {
   header("Location: index.php");
   exit();
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $userID = find('users', 'username', $_POST['username']);
-  if ($userID !== false) {
-    $storedUser = read('users', $userID);
-    if (password_verify($_POST['password'], $storedUser['password'])) {
-      // Password is correct, start a session
-      $_SESSION['user_id'] = $userID;
-      $_SESSION['username'] = $storedUser['username'];
-      header("Location: index.php");
-      exit();
-    } else {
-      $error = "Invalid username or password.";
-    }
+  $username = trim($_POST['username'] ?? '');
+  $password = $_POST['password'] ?? '';
+
+  if ($username === '' || $password === '') {
+    $error = "Please fill in all fields.";
+  } else if (login($username, $password)) {
+    // Login successful
+    header("Location: index.php");
+    exit();
   } else {
     $error = "Invalid username or password.";
   }
