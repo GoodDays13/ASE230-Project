@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/database.php';
+require_once 'authentication.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $user = ['username' => $_POST['username'], 'email' => $_POST['email'], 'password' => $_POST['new-password']];
