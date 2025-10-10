@@ -110,7 +110,7 @@ if ($type === 'user' && $query) {
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse <?= $type === 'user' ? 'show' : '' ?>" data-bs-parent="#entityAccordion">
           <div class="accordion-body">
-            <input type="text" class="form-control mb-3" placeholder="Search Users..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=user&query=' + this.value}" value="<?= $type === 'user' ? htmlspecialchars($query ?? '') : '' ?>">
+            <input type="text" class="form-control mb-3" placeholder="Search Users..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=user&query=' + encodeURIComponent(this.value)}" value="<?= $type === 'user' ? htmlspecialchars($query ?? '') : '' ?>">
             <?php
             renderDataWithEdit('user', $users);
             ?>
@@ -125,7 +125,7 @@ if ($type === 'user' && $query) {
         </h2>
         <div id="collapseTwo" class="accordion-collapse collapse <?= $type === 'post' ? 'show' : '' ?>" data-bs-parent="#entityAccordion">
           <div class="accordion-body">
-            <input type="text" class="form-control mb-3" placeholder="Search Posts..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=post&query=' + this.value}" value="<?= $type === 'post' ? htmlspecialchars($query ?? '') : '' ?>">
+            <input type="text" class="form-control mb-3" placeholder="Search Posts..." onkeydown="if(event.key==='Enter'){window.location.href='admin.php?type=post&query=' + encodeURIComponent(this.value)}" value="<?= $type === 'post' ? htmlspecialchars($query ?? '') : '' ?>">
             <?php
             renderDataWithEdit('post', $posts);
             ?>
