@@ -5,4 +5,7 @@ This project is a social media platform that challenges modern social media desi
 ## Team Members
 - Kaiden Matuskiewicz
 
-**Note:** This abstract was generated with AI assistance (GitHub Copilot) to help articulate the technical implementation and project scope.
+## Video Demonstration
+[Video Demonstration](http://www.youtube.com/watch?v=y9jgx5qwWvY)
+
+**Note:** The abstract was generated with AI assistance (GitHub Copilot) to help articulate the technical implementation and project scope.
