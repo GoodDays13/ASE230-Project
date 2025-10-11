@@ -69,8 +69,10 @@ $posts = readAll('post');
   <div class="container d-flex mt-5">
     <h1>Public Square</h1>
     <?php if (isLoggedIn()) { ?>
-      <span class="badge bg-primary ms-3 my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
-      <a class="btn btn-outline-primary ms-auto mb-auto" href="admin.php">Admin Panel</a>
+      <span class="badge bg-primary ms-3 me-auto my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
+      <?php if (getLevelOfRole($_SESSION['role']) > getLevelOfRole('user')) { ?>
+        <a class="btn btn-outline-primary mb-auto" href="admin.php">Admin Panel</a>
+      <?php } ?>
       <a class="btn btn-outline-primary ms-3 mb-auto" href="logout.php">Logout</a>
     <?php } else { ?>
       <a class="btn btn-outline-primary ms-auto mb-auto" href="login.php">Login</a>
