@@ -13,11 +13,21 @@ function isLoggedIn()
   return isset($_SESSION['user_id']);
 }
 
-function getLevelOfRole($role)
+function has_permission($permission_name)
 {
-  global $roles;
-  $level = array_search($role, $roles);
-  return $level === false ? -1 : $level;
+  $pdo = ensureDatabaseReady();
+  if ($pdo === false || !isLoggedIn()) {
+    return false;
+  }
+  $stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM user
+    JOIN role ON user.role = role.id
+    JOIN role_permission ON role.id = role_permission.role
+    JOIN permission ON role_permission.permission = permission.id
+    WHERE user.id = ? AND permission.name = ?
+  ");
+  $stmt->execute([$_SESSION['user_id'], $permission_name]);
+  return $stmt->fetchColumn() > 0;
 }
 
 function validate($user)

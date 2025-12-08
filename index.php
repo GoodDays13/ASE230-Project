@@ -70,7 +70,7 @@ $posts = readAll('post');
     <h1>Public Square</h1>
     <?php if (isLoggedIn()) { ?>
       <span class="badge bg-primary ms-3 me-auto my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
-      <?php if (getLevelOfRole($_SESSION['role']) > getLevelOfRole('user')) { ?>
+      <?php if (has_permission('admin_panel')) { ?>
         <a class="btn btn-outline-primary mb-auto" href="admin.php">Admin Panel</a>
       <?php } ?>
       <a class="btn btn-outline-primary ms-3 mb-auto" href="logout.php">Logout</a>

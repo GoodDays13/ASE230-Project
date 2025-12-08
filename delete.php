@@ -12,8 +12,8 @@ if ($type === null) {
 if (!isLoggedIn()) {
   header("Location: login.php");
   exit();
-} else if (getLevelOfRole($_SESSION['role']) < getLevelOfRole('admin')) {
-  echo "Access denied. Admins only.";
+} else if (!has_permission('admin_delete')) {
+  echo "Access denied. Insufficient permissions.";
   http_response_code(403);
   exit();
 }

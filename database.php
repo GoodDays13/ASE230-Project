@@ -91,6 +91,25 @@ function find($type, $key, $value)
   }
 }
 
+// Find a post by multiple criteria. Returns the row found or false.
+function findArray($type, $criteria)
+{
+  $database = ensureDatabaseReady();
+  if ($database === false) {
+    return false;
+  }
+  $whereClause = implode(" AND ", array_map(function ($key) {
+    return "$key = ?";
+  }, array_keys($criteria)));
+  $stmt = $database->prepare("SELECT * FROM $type WHERE $whereClause LIMIT 1");
+  if ($stmt->execute(array_values($criteria))) {
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ?? false;
+  } else {
+    return false;
+  }
+}
+
 function update($type, $id, $newData)
 {
   $database = ensureDatabaseReady();

@@ -12,8 +12,8 @@ if ($type === null) {
 if (!isLoggedIn()) {
   header("Location: login.php");
   exit();
-} else if (getLevelOfRole($_SESSION['role']) < getLevelOfRole('admin')) {
-  echo "Access denied. Admins only.";
+} else if (!has_permission('admin_edit')) {
+  echo "Access denied. Insufficient permissions.";
   http_response_code(403);
   exit();
 }
@@ -33,10 +33,32 @@ if ($post === false) {
 
 $newPost = $_POST;
 // Prevent changing immutable fields
-$newPost['created_at'] = $post['created_at'];
-$newPost['updated_at'] = date('Y-m-d H:i:s');
+unset($newPost['id']);
+unset($newPost['created']);
+unset($newPost['updated']);
+if (isset($newPost['role']) && !has_permission('admin_change_role')) {
+  unset($newPost['role']);
+  echo "Access denied. Cannot change role.";
+  http_response_code(403);
+  exit();
+}
 
-update($type, $postID, $newPost);
+try {
+  update($type, $postID, $newPost);
+} catch (PDOException $e) {
+  if ($e->getCode() == 23000) { // Integrity constraint violation
+    echo htmlspecialchars($e->getMessage());
+    http_response_code(400);
+  } else {
+    echo htmlspecialchars($e->getMessage());
+    http_response_code(500);
+  }
+  exit();
+} catch (Exception $e) {
+  echo "Error updating item: " . htmlspecialchars($e->getMessage());
+  http_response_code(500);
+  exit();
+}
 
 header("Location: admin.php");
 exit();
