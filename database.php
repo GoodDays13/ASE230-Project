@@ -13,19 +13,6 @@ function ensureDatabaseReady()
   return $database;
 }
 
-/* function sortByIndex($type, $data) */
-/* { */
-/*   global $indexes; */
-/*   $index = 'id'; */
-/*   if (isset($indexes[$type])) { */
-/*     $index = $indexes[$type]; */
-/*   } */
-/*   usort($data, function ($a, $b) use ($index) { */
-/*     return strcmp($a[$index], $b[$index]); */
-/*   }); */
-/*   return $data; */
-/* } */
-
 // ---------- Public API ----------
 
 // Create a new post. Returns the created post or false on conflict.
