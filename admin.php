@@ -18,6 +18,9 @@ function renderData($data)
     } else if ($key === 'role') {
       $role = read('role', $value);
       $value = $role ? $role['name'] : 'Unknown';
+    } else if ($key === 'permission') {
+      $permission = read('permission', $value);
+      $value = $permission ? $permission['name'] : 'Unknown';
     }
 ?>
     <p><strong><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $key))); ?>:</strong> <?php echo htmlspecialchars($value); ?></p>
@@ -44,6 +47,18 @@ function renderEditableData($data)
       }
       echo '</select>';
       echo '</div>';
+    } else if ($key === 'permission') {
+      // Render permission as a dropdown
+      $permissions = readAll('permission');
+      echo '<div class="mb-3">';
+      echo '<label for="permission" class="form-label">Permission</label>';
+      echo '<select class="form-select" id="permission" name="permission">';
+      foreach ($permissions as $permission) {
+        $selected = ($permission['id'] == $value) ? 'selected' : '';
+        echo '<option value="' . htmlspecialchars($permission['id']) . '" ' . $selected . '>' . htmlspecialchars($permission['name']) . '</option>';
+      }
+      echo '</select>';
+      echo '</div>';
     } else {
       echo '<div class="mb-3">';
       echo '<label for="' . htmlspecialchars($key) . '" class="form-label">' . htmlspecialchars(ucfirst(str_replace('_', ' ', $key))) . '</label>';
@@ -59,9 +74,14 @@ function renderDataWithEdit($type, $items)
     <div class="card mb-4 p-3">
       <div class="d-flex align-items-center justify-content-between">
         <h5 class="mb-0">ID: <?= htmlspecialchars($user['id']) ?></h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleEdit('<?= $type ?>-<?= $user['id'] ?>')">
-          <i class="bi bi-pencil"></i> Edit
-        </button>
+        <?php if (
+          has_permission('admin_edit')
+          && (has_permission('admin_change_role') || !in_array($type, ['role', 'permission', 'role_permission']))
+        ): ?>
+          <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleEdit('<?= $type ?>-<?= $user['id'] ?>')">
+            <i class="bi bi-pencil"></i> Edit
+          </button>
+        <?php endif; ?>
       </div>
       <div id="<?= $type ?>-<?= $user['id'] ?>-view">
         <?php renderData($user); ?>
@@ -81,29 +101,40 @@ function renderDataWithEdit($type, $items)
 $type = $_GET['type'] ?? null;
 $query = $_GET['query'] ?? null;
 
-$users = readAll('user');
-$posts = readAll('post');
-$roles = readAll('role');
+$entities = [
+  'user' => [
+    'label'   => 'Users',
+    'items'   => readAll('user')
+  ],
+  'post' => [
+    'label'   => 'Posts',
+    'items'   => readAll('post')
+  ],
+  'role' => [
+    'label'   => 'Roles',
+    'items'   => readAll('role')
+  ],
+  'permission' => [
+    'label'   => 'Permissions',
+    'items'   => readAll('permission')
+  ],
+  'role_permission' => [
+    'label'   => 'Role Permissions',
+    'items'   => readAll('role_permission')
+  ],
+];
 
-if ($type === 'user' && $query) {
-  $users = array_filter($users, function ($user) use ($query) {
-    foreach ($user as $field) {
-      if (preg_match('/' . $query . '/i', $field)) {
-        return true;
-      }
-    }
-    return false;
-  });
-} elseif ($type === 'post' && $query) {
-  $posts = array_filter($posts, function ($post) use ($query) {
-    foreach ($post as $field) {
-      if (preg_match('/' . $query . '/i', $field)) {
+if ($type && $query) {
+  $entities[$type]['items'] = array_filter($entities[$type]['items'], function ($row) use ($query) {
+    foreach ($row as $value) {
+      if (is_scalar($value) && preg_match('/' . preg_quote($query, '/') . '/i', $value)) {
         return true;
       }
     }
     return false;
   });
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -127,21 +158,6 @@ if ($type === 'user' && $query) {
   <div class="container mt-5">
     <div class="accordion" id="entityAccordion">
       <?php
-      $entities = [
-        'user' => [
-          'label'   => 'Users',
-          'items'   => $users
-        ],
-        'post' => [
-          'label'   => 'Posts',
-          'items'   => $posts
-        ],
-        'role' => [
-          'label'   => 'Roles',
-          'items'   => $roles
-        ],
-      ];
-
       foreach ($entities as $key => $entity):
         $isActive = ($type === $key);
         $collapseId = 'collapse' . ucfirst($key);
