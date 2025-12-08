@@ -64,8 +64,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="input-group has-validation">
                   <span class="input-group-text">@</span>
                   <input type="text" class="form-control" id="username" name="username"
-                    autocomplete="username" minlength="3" required />
-                  <div class="invalid-feedback">Pick a username (min. 3 chars).</div>
+                    autocomplete="username" minlength="3" pattern="^[a-zA-Z0-9_]+$" required />
+                  <div class="invalid-feedback">Username can only contain letters, numbers, and underscores.</div>
                 </div>
               </div>
               <div class="col-md-6">
