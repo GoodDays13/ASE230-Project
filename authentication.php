@@ -35,7 +35,7 @@ function register($user)
   if (validate($user)) {
     // Hash the password before storing
     $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
-    $user['role'] = 'user'; // Default role
+    $user['role'] = '1'; // Default role. 1 = user
     if (create('user', $user) !== false) {
       return true; // Registration successful
     } else {
@@ -48,11 +48,10 @@ function register($user)
 
 function login($username, $password)
 {
-  $userID = find('user', 'username', $username);
-  if ($userID !== false) {
-    $storedUser = read('user', $userID);
+  $storedUser = find('user', 'username', $username);
+  if ($storedUser !== false) {
     if (password_verify($password, $storedUser['password'])) {
-      $_SESSION['user_id'] = $userID;
+      $_SESSION['user_id'] = $storedUser['id'];
       $_SESSION['username'] = $storedUser['username'];
       $_SESSION['role'] = $storedUser['role'];
       return true;

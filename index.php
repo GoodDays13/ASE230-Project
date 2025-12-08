@@ -14,7 +14,7 @@ function renderPost($post)
       <h5 class="card-title"><?= htmlspecialchars($post['title']) ?></h5>
       <p class="card-text"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
       <p class="card-text"><small class="text-muted">
-          Posted on <?= htmlspecialchars($post['created_at']) ?>
+          Posted on <?= htmlspecialchars($post['created']) ?>
           by <?= htmlspecialchars(read('user', $post['user_id'])['username'] ?? 'null') ?>
         </small></p>
     </div>

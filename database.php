@@ -1,73 +1,16 @@
 <?php
 
-// JSON file path, resolved relative to this file to avoid CWD issues
-$databasePath = __DIR__ . "/raw_files/";
+global $database;
 
 // ---------- Internal Helpers ----------
-function ensureDatabaseReady($type)
+function ensureDatabaseReady()
 {
-  global $databasePath;
-  $databaseFile = $databasePath . $type . ".json";
-  if (!is_dir($databasePath)) {
-    if (!@mkdir($databasePath, 0777, true) && !is_dir($databasePath)) {
-      echo 'ensureDatabaseReady: failed to create dir <br>';
-      return false;
-    }
+  global $database;
+  if ($database) {
+    return $database;;
   }
-  if (!is_writable($databasePath)) {
-    echo 'ensureDatabaseReady: database unwritable <br>';
-    return false;
-  }
-  if (!file_exists($databaseFile)) {
-    if (@file_put_contents($databaseFile, json_encode([])) === false) {
-      echo 'ensureDatabaseReady: failed to init file <br>';
-      return false;
-    }
-  }
-  if (file_exists($databaseFile) && !is_writable($databaseFile)) {
-    echo 'ensureDatabaseReady: file unwritable <br>';
-    return false;
-  }
-  return $databaseFile;
-}
-
-function loadData($type)
-{
-  $databaseFile = ensureDatabaseReady($type);
-  if (!$databaseFile) {
-    echo 'loadData: failed to get file <br>';
-    return false;
-  }
-  $data = [];
-
-  $json = @file_get_contents($databaseFile);
-
-  if ($json === false) {
-    echo 'loadData: failed to get json <br>';
-    return false;
-  }
-
-  $data = json_decode($json, true);
-
-  if (!is_array($data)) {
-    echo 'loadData: is not array <br>';
-    return false;
-  }
-
-  return $data;
-}
-
-function saveData($type, $data)
-{
-  $databaseFile = ensureDatabaseReady($type);
-  if (!$databaseFile) {
-    return false;
-  }
-  $json = json_encode($data, JSON_PRETTY_PRINT | JSON_FORCE_OBJECT);
-  if ($json === false) {
-    return false;
-  }
-  return file_put_contents($databaseFile, $json);
+  $database = new PDO('mysql:host=localhost;dbname=publicsquare;charset=utf8', 'root');
+  return $database;
 }
 
 /* function sortByIndex($type, $data) */
@@ -88,76 +31,95 @@ function saveData($type, $data)
 // Create a new post. Returns the created post or false on conflict.
 function create($type, $data)
 {
-  $database = loadData($type);
+  $database = ensureDatabaseReady();
   if ($database === false) {
-    echo "Create: Failed to load data";
     return false;
   }
-
-  $data['created_at'] = date('Y-m-d H:i:s');
-
-  $database[] = $data;
-
-  if (!saveData($type, $database)) {
+  $placeholders = implode(", ", array_fill(0, count($data), "?"));
+  $columns = implode(", ", array_keys($data));
+  $stmt = $database->prepare("INSERT INTO $type ($columns) VALUES ($placeholders)");
+  if ($stmt->execute(array_values($data))) {
+    $data['id'] = $database->lastInsertId();
+    return $data;
+  } else {
     return false;
   }
-  return $data;
 }
 
 // List all posts.
 function read($type, $id)
 {
-  return loadData($type)[$id] ?? null;
+  $database = ensureDatabaseReady();
+  if ($database === false) {
+    return false;
+  }
+  $stmt = $database->prepare("SELECT * FROM $type WHERE id = ?");
+  if ($stmt->execute([$id])) {
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+  } else {
+    return false;
+  }
 }
 
 function readAll($type)
 {
-  return loadData($type);
-}
-
-// Find a post by a specific key/value pair. Returns the first match's ID or false if not found.
-function find($type, $key, $value)
-{
-  $database = loadData($type);
+  $database = ensureDatabaseReady();
   if ($database === false) {
     return false;
   }
-  foreach ($database as $id => $item) {
-    if (isset($item[$key]) && $item[$key] === $value) {
-      return $id;
-    }
+  $stmt = $database->prepare("SELECT * FROM $type");
+  if ($stmt->execute()) {
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } else {
+    return false;
   }
-  return false;
+}
+
+// Find a post by a specific key/value pair. Returns the row found or false.
+function find($type, $key, $value)
+{
+  $database = ensureDatabaseReady();
+  if ($database === false) {
+    return false;
+  }
+  $stmt = $database->prepare("SELECT * FROM $type WHERE $key = ? LIMIT 1");
+  if ($stmt->execute([$value])) {
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ?? false;
+  } else {
+    return false;
+  }
 }
 
 function update($type, $id, $newData)
 {
-  $database = loadData($type);
+  $database = ensureDatabaseReady();
   if ($database === false) {
     return false;
   }
-  if (!isset($database[$id])) {
+  $setClause = implode(", ", array_map(function ($key) {
+    return "$key = ?";
+  }, array_keys($newData)));
+  $stmt = $database->prepare("UPDATE $type SET $setClause WHERE id = ?");
+  $values = array_values($newData);
+  $values[] = $id;
+  if ($stmt->execute($values)) {
+    return true;
+  } else {
     return false;
   }
-  $database[$id] = array_merge($database[$id], $newData);
-  if (!saveData($type, $database)) {
-    return false;
-  }
-  return true;
 }
 
 function delete($type, $id)
 {
-  $database = loadData($type);
+  $database = ensureDatabaseReady();
   if ($database === false) {
     return false;
   }
-  if (!isset($database[$id])) {
+  $stmt = $database->prepare("DELETE FROM $type WHERE id = ?");
+  if ($stmt->execute([$id])) {
+    return true;
+  } else {
     return false;
   }
-  unset($database[$id]);
-  if (!saveData($type, $database)) {
-    return false;
-  }
-  return true;
 }
