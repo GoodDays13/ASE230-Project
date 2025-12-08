@@ -12,7 +12,24 @@ if ($type === null) {
 if (!isLoggedIn()) {
   header("Location: login.php");
   exit();
-} else if (!has_permission('admin_edit')) {
+}
+
+$postID = $_GET['id'] ?? null;
+if ($postID === null || !is_numeric($postID)) {
+  echo "Invalid ID.";
+  http_response_code(400);
+  exit();
+}
+
+$post = read($type, $postID);
+if ($post === false) {
+  echo "Item not found.";
+  http_response_code(404);
+  exit();
+}
+
+if (!(has_permission('admin_edit')
+  || ($type === 'post' && $post['user_id'] == $_SESSION['user_id']))) {
   echo "Access denied. Insufficient permissions.";
   http_response_code(403);
   exit();
@@ -32,20 +49,6 @@ if (!has_permission('admin_change_role')) {
     http_response_code(403);
     exit();
   }
-}
-
-$postID = $_GET['id'] ?? null;
-if ($postID === null || !is_numeric($postID)) {
-  echo "Invalid ID.";
-  http_response_code(400);
-  exit();
-}
-
-$post = read($type, $postID);
-if ($post === false) {
-  echo "Item not found.";
-  http_response_code(404);
-  exit();
 }
 
 $newPost = $_POST;
@@ -77,5 +80,7 @@ try {
   exit();
 }
 
-header("Location: admin.php");
+$origin = $_SERVER['HTTP_REFERER'] ?? 'index.php';
+
+header("Location: " . $origin);
 exit();

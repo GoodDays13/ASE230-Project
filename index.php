@@ -8,10 +8,16 @@ $invalidPost = false;
 
 function renderPost($post)
 {
+  $canEdit = isLoggedIn() && $_SESSION['user_id'] === $post['user_id'];
 ?>
-  <div class="card mb-3">
+  <div id="view-post-<?= htmlspecialchars($post['id']) ?>" class="card mb-3">
     <div class="card-body">
-      <h5 class="card-title"><?= htmlspecialchars($post['title']) ?></h5>
+      <div class="d-flex align-items-center">
+        <h5 class="card-title"><?= htmlspecialchars($post['title']) ?></h5>
+        <?php if ($canEdit) { ?>
+          <button type="button" class="btn btn-sm btn-outline-secondary ms-auto" onclick="document.getElementById('view-post-<?= htmlspecialchars($post['id']) ?>').style.display='none';document.getElementById('edit-post-<?= htmlspecialchars($post['id']) ?>').style.display='block';">Edit</button>
+        <?php } ?>
+      </div>
       <p class="card-text"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
       <p class="card-text"><small class="text-muted">
           Posted on <?= htmlspecialchars($post['created']) ?>
@@ -19,7 +25,47 @@ function renderPost($post)
         </small></p>
     </div>
   </div>
+  <?php if ($canEdit) { ?>
+    <div id="edit-post-<?= htmlspecialchars($post['id']) ?>" class="card mb-3" style="display:none;">
+      <div class="card-body">
+        <form method="post" action="edit.php?type=post&id=<?= htmlspecialchars($post['id']) ?>">
+          <div class="mb-3">
+            <label for="title-<?= $post['id'] ?>" class="form-label">Title</label>
+            <input type="text"
+              class="form-control"
+              id="title-<?= $post['id'] ?>"
+              name="title"
+              value="<?= htmlspecialchars($post['title']) ?>"
+              required>
+          </div>
+
+          <div class="mb-3">
+            <label for="content-<?= $post['id'] ?>" class="form-label">Content</label>
+            <textarea class="form-control"
+              id="content-<?= $post['id'] ?>"
+              name="content"
+              rows="10"
+              required><?= htmlspecialchars($post['content']) ?></textarea>
+          </div>
+
+          <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-danger ms-2"
+              onclick="if(confirm('Delete this post?')) 
+                                 window.location.href='delete.php?type=post&id=<?= htmlspecialchars($post['id']) ?>'">
+              Delete
+            </button>
+            <button type="button" class="btn btn-secondary ms-2"
+              onclick="document.getElementById('edit-post-<?= htmlspecialchars($post['id']) ?>').style.display='none';
+                                 document.getElementById('view-post-<?= htmlspecialchars($post['id']) ?>').style.display='block';">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 <?php }
+}
 
 function postValid($post)
 {
@@ -96,6 +142,7 @@ $posts = readAll('post');
               <?php } ?>
             </div>
             <button type="submit" class="btn btn-primary">Post</button>
+          </form>
         </div>
       </div>
     <?php }
