@@ -30,8 +30,10 @@ function renderData($data)
 function renderEditableData($data)
 {
   foreach ($data as $key => $value) {
-    if ($key === 'id' || $key === 'created' || $key === 'modified' || $key === 'password') {
+    if ($key === 'id' || $key === 'created' || $key === 'modified') {
       continue; // Skip non-editable fields
+    } else if ($key === 'password' && !has_permission('admin_change_password')) {
+      continue; // Skip password field if no permission
     } else if ($key === 'role') {
       if (!has_permission('admin_change_role')) {
         continue; // Skip role field if no permission

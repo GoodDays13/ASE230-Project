@@ -62,6 +62,16 @@ if (isset($newPost['role']) && !has_permission('admin_change_role')) {
   http_response_code(403);
   exit();
 }
+if (isset($newPost['password'])) {
+  if (has_permission('admin_change_password')) {
+    $newPost['password'] = password_hash($newPost['password'], PASSWORD_DEFAULT);
+  } else {
+    unset($newPost['password']);
+    echo "Access denied. Cannot change password.";
+    http_response_code(403);
+    exit();
+  }
+}
 
 try {
   update($type, $postID, $newPost);
