@@ -106,32 +106,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $posts = readAll('post');
+
+$PAGE_TITLE = "Public Square";
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Public Square</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-
 <body>
-  <div class="container d-flex mt-5">
-    <h1>Public Square</h1>
-    <?php if (isLoggedIn()) { ?>
-      <span class="badge bg-primary ms-3 me-auto my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
-      <?php if (has_permission('admin_panel')) { ?>
-        <a class="btn btn-outline-primary mb-auto" href="admin.php">Admin Panel</a>
-      <?php } ?>
-      <a class="btn btn-outline-primary ms-3 mb-auto" href="logout.php">Logout</a>
-    <?php } else { ?>
-      <a class="btn btn-outline-primary ms-auto mb-auto" href="login.php">Login</a>
-    <?php } ?>
-    </a>
-  </div>
+  <?php renderHeader($PAGE_TITLE); ?>
   <div class="container mt-5">
     <?php if (isset($_SESSION['user_id'])) { ?>
       <div class="card mb-3">

@@ -137,26 +137,12 @@ if ($type && $query) {
   });
 }
 
+$PAGE_TITLE = "Admin Panel";
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Panel</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-
 <body>
-  <div class="container d-flex mt-5">
-    <h1>Admin Panel</h1>
-    <span class="badge bg-primary ms-3 my-auto mb-auto">Hello, <?php echo htmlspecialchars($_SESSION['username']); ?>!</span>
-    <a class="btn btn-outline-primary ms-auto mb-auto" href="index.php">Home</a>
-    <a class="btn btn-outline-primary ms-3 mb-auto" href="logout.php">Logout</a>
-    </a>
-  </div>
+  <?php renderHeader($PAGE_TITLE); ?>
   <div class="container mt-5">
     <div class="accordion" id="entityAccordion">
       <?php
