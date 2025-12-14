@@ -23,7 +23,7 @@ function renderData($data)
       $value = $permission ? $permission['name'] : 'Unknown';
     }
 ?>
-    <p><strong><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $key))); ?>:</strong> <?php echo htmlspecialchars($value); ?></p>
+    <p><strong><?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $key))); ?>:</strong> <?= is_string($value) ? htmlspecialchars($value) : 'null' ?></p>
   <?php }
 }
 
