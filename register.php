@@ -3,11 +3,21 @@ require_once 'authentication.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $user = ['username' => $_POST['username'], 'email' => $_POST['email'], 'password' => $_POST['new-password']];
-  $error = register($user);
-  if ($error === true) {
+  try {
+    register($user);
     // Registration successful, redirect to login or another page
     header("Location: login.php");
     exit();
+  } catch (PDOException $e) {
+    $error = $e->getMessage();
+    if ($e->getCode() !== '23000' || $e->errorInfo[1] !== 1062) {
+      throw $e; // re-throw if not a constraint violation
+    }
+    if (str_contains($error, 'for key \'username\'')) {
+      $error = "Username is already taken.";
+    } elseif (str_contains($error, 'for key \'email\'')) {
+      $error = "An account with this email already exists.";
+    }
   }
 }
 ?>
@@ -110,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               </div>
             </div>
 
-            <!-- Terms -->
+            <!-- Terms ->
             <div class="form-check mt-4">
               <input class="form-check-input" type="checkbox" value="" id="terms" required />
               <label class="form-check-label" for="terms">
@@ -118,11 +128,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               </label>
               <div class="invalid-feedback">You must agree before submitting.</div>
             </div>
+            -->
 
             <!-- Submit -->
             <div class="d-grid mt-4">
               <button class="btn btn-primary btn-lg" type="submit">Create Account</button>
             </div>
+
+            <!-- Error message -->
+            <?php if (isset($error)): ?>
+              <div class="alert alert-danger mt-3" role="alert">
+                <?= htmlspecialchars($error) ?>
+              </div>
+            <?php endif; ?>
 
             <!-- Optional: small print -->
             <p class="text-center text-muted mt-3 mb-0">
