@@ -9,6 +9,7 @@ $invalidPost = false;
 function renderPost($post)
 {
   $canEdit = isLoggedIn() && $_SESSION['user_id'] === $post['user_id'];
+  $user = read('user', $post['user_id']);
 ?>
   <div id="view-post-<?= htmlspecialchars($post['id']) ?>" class="card mb-3">
     <div class="card-body">
@@ -21,8 +22,11 @@ function renderPost($post)
       <p class="card-text"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
       <p class="card-text"><small class="text-muted">
           Posted on <?= htmlspecialchars($post['created']) ?>
-          by <?= htmlspecialchars(read('user', $post['user_id'])['username'] ?? '[deleted]') ?>
-          <?php if ($post['modified']) { ?>
+          by <?= htmlspecialchars($user['username'] ?? '[deleted]') ?>
+          <?php if ($user && $user['role'] !== 1) { ?>
+            <span class="badge bg-primary align-middle"><?= read('role', $user['role'])['name'] ?></span>
+          <?php }
+          if ($post['modified']) { ?>
             (edited on <?= htmlspecialchars($post['modified']) ?>)
           <?php } ?>
         </small></p>
